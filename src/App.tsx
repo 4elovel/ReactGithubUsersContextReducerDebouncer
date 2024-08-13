@@ -44,6 +44,39 @@ function App() {
     fetchData();
   }, []);
 
+  const addUser = async (user: User) => {
+    try {
+      const response = await fetch("http://localhost:3000/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(user),
+      });
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
+      dispatch({ type: "ADD_USER", payload: data });
+    } catch (error) {
+      console.error("Add user error:", error);
+    }
+  };
+
+  const deleteUser = async (id: number) => {
+    try {
+      const response = await fetch(`http://localhost:3000/users/${id}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      dispatch({ type: "DELETE_USER", payload: id });
+    } catch (error) {
+      console.error("Delete user error:", error);
+    }
+  };
+
   return (
     <ThemeContext.Provider value={theme}>
       <ThemeHandler>
@@ -59,12 +92,9 @@ function App() {
             filterUsers={(query) =>
               dispatch({ type: "FILTER_USERS", payload: query })
             }
-            addUser={(user) => dispatch({ type: "ADD_USER", payload: user })}
+            addUser={addUser}
           />
-          <Users
-            users={state.filteredUsers}
-            deleteUser={(id) => dispatch({ type: "DELETE_USER", payload: id })}
-          />
+          <Users users={state.filteredUsers} deleteUser={deleteUser} />
         </>
       </ThemeHandler>
     </ThemeContext.Provider>
